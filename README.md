@@ -53,4 +53,7 @@ Unless explicitly authorized, copying, redistribution, modification, or commerci
 
 ---
 
-© 2026 Opektra. All rights reserved.
+© 2026 Opektra Technologies Pvt Ltd. All rights reserved.
+
+Local setup and retained platform documentation: [DEVELOPMENT.md](DEVELOPMENT.md).
+Legal content review: [frontend/LEGAL_REVIEW.md](frontend/LEGAL_REVIEW.md).

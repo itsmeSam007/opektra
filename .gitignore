@@ -147,3 +147,53 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Opektra workspace exclusions
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Build
+.next/
+out/
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.*
+!**/.env.example
+!**/.env.*.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+postgres_data/
+
+# Debug
+npm-debug.log*
+*.log
+
+# Generated QA and test artifacts stay local
+output/
+coverage/
+.coverage
+coverage.xml
+.pytest_cache/
+playwright-report/
+test-results/
+*.tsbuildinfo
+*.pem
+*.key

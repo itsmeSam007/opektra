@@ -1,0 +1,35 @@
+{
+  "description": "FounderOS Cloudflare cache rules — apply in Cloudflare dashboard or via API",
+  "rules": [
+    {
+      "name": "Static assets long cache",
+      "expression": "(http.request.uri.path matches \"^/_next/static/.*\")",
+      "action": "cache",
+      "action_parameters": {
+        "cache": true,
+        "edge_ttl": 31536000,
+        "browser_ttl": 31536000
+      }
+    },
+    {
+      "name": "Public HTML ISR",
+      "expression": "(http.request.uri.path matches \"^/(products|blog|portfolio|travel|case-studies).*\")",
+      "action": "cache",
+      "action_parameters": {
+        "cache": true,
+        "edge_ttl": 3600,
+        "browser_ttl": 600
+      }
+    },
+    {
+      "name": "API bypass cache",
+      "expression": "(http.request.uri.path matches \"^/api/.*\")",
+      "action": "bypass_cache"
+    },
+    {
+      "name": "Admin bypass cache",
+      "expression": "(http.request.uri.path matches \"^/admin/.*\")",
+      "action": "bypass_cache"
+    }
+  ]
+}
