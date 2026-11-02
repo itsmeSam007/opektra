@@ -1,6 +1,6 @@
-# Opektra frontend design QA — mandatory protocol
+# Opektra frontend design QA — scope and protocol
 
-This root file is both the permanent frontend QA rule set and the latest run report. Follow it for **every frontend change**, including small CSS fixes, copy/layout changes, animation changes and dependency updates. Root `AGENTS.md` and `frontend/AGENTS.md` enforce this gate. Preserve the rules when replacing the latest run results.
+This root file contains the frontend QA rules and latest run report. **Scale verification to the change.** The user does not want the complete screen-size matrix repeatedly run for small edits. A copy/link removal needs a focused check of the affected component/page and fresh evidence. Use the full matrix for substantial layout, styling, animation or dependency changes, or an explicit user request. Root `AGENTS.md` and `frontend/AGENTS.md` follow this scope. Preserve the rules when replacing the latest run results.
 
 ## 1. What a screen-size check means
 
@@ -10,7 +10,7 @@ The cases below represent phones, tablets, laptops, MacBook-class scaled workspa
 
 ## 2. Required screen × route matrix
 
-Run every route below at every required viewport after the final code change. New public routes must be added here when introduced. A current full run contains 23 viewports × 16 routes = 368 page/viewport checks.
+When a full run is warranted, run every route below at every required viewport after the final code change. Small copy/link edits do not require a full run. New public routes must be added here when introduced. A current full run contains 23 viewports × 16 routes = 368 page/viewport checks.
 
 | Representative case | CSS viewport |
 | --- | --- |
@@ -59,7 +59,7 @@ Required public routes:
 
 Also test **one pixel below/at/above each affected media-query boundary**. Current principal widths are 650, 767, 900, 1150 and 1550px; product-story height boundaries are 820 and 1400px. Check portrait ↔ landscape changes and small browser heights, not just maximized windows.
 
-## 3. Checks on every page/viewport
+## 3. Checks within the selected scope
 
 1. Navigate to the actual running page and confirm the expected route, title and primary heading. Build success, HTTP 200 and a DOM-only check do not replace visual inspection.
 2. Check horizontal overflow, offscreen/truncated primary text, broken wrapping, distorted or missing images and console errors. Ignore intentional decorative perspective only when it does not hide meaningful copy or controls.
@@ -72,6 +72,8 @@ Also test **one pixel below/at/above each affected media-query boundary**. Curre
 
 ## 4. Zoom, motion and browser settings
 
+Apply these checks during a full run or when the changed behaviour makes them relevant; do not repeat the full zoom/motion suite for an unrelated copy/link removal.
+
 - In a real browser, test 80%, 100%, 125%, 150% and 200% zoom. At minimum check home/product story, Contact/footer and an article. Confirm reflow, navigation access and no footer gap. Record actual CSS dimensions, because zoom changes the viewport.
 - Exercise `prefers-reduced-motion: reduce` using browser emulation or a real preference when available. Continuous movement/pinning must stop; all content and stage controls must remain accessible. Record the preference used and restore it. If preference emulation is unavailable, clearly mark it untested instead of claiming a simulated pass.
 - Check the pinned workflow with real scroll plus manual stage selection. Verify normal-flow/mobile stage selection does not reset on incidental scrolling.
@@ -83,27 +85,21 @@ Also test **one pixel below/at/above each affected media-query boundary**. Curre
 ## 5. Evidence, fixes and handoff gate
 
 - Save a distinct run folder under `output/responsive-qa/`, with configuration, measurements and screenshots. Preserve earlier evidence when recording a regression fix.
-- Collect measurements for the full matrix. Inspect screenshot galleries covering **each screen family and each route**, plus focused/native-resolution screenshots for risky states. Screen captures must have the expected CSS dimensions; use full-page capture and aligned crops if the browser’s viewport-capture pipeline mis-scales a large emulated canvas. Do not treat capture padding as site whitespace.
-- Put target/current or before/after evidence together for material visual findings. Fix P0/P1/P2 issues, recapture them and rerun the required matrix after layout changes. Do not endlessly iterate on P3 polish.
+- For a full run, collect matrix measurements and inspect galleries covering **each screen family and each route**, plus focused/native-resolution screenshots for risky states. For a small edit, inspect the changed component/page and save focused evidence. Screen captures must have the expected CSS dimensions; use full-page capture and aligned crops if the browser’s viewport-capture pipeline mis-scales a large emulated canvas. Do not treat capture padding as site whitespace.
+- Put target/current or before/after evidence together for material visual findings. Fix P0/P1/P2 issues, recapture them and recheck the affected scope; rerun the full matrix only when the scope warrants it. Do not endlessly iterate on P3 polish.
 - Run the production build/type check for implementation changes, existing unit checks when relevant, and lint for changed code. Do not add tests that merely mirror CSS declarations. Browser layout/interaction checks are the evidence for visual CSS changes.
 - Record the final result as `passed`, `partial` or `blocked`, with route/screen counts, findings, fixes, tests and limitations. A previous task’s result is never a pass for a new change. Do not claim every physical device/browser is supported based on this matrix.
 - Before completing a frontend task, update the latest report below and include a concise user-facing result with visible screenshot evidence. Required unavailable checks remain named limitations. Material unresolved layout or interaction defects block a passing handoff.
 
 ---
 
-## Latest run — 2026-11-02 dependency security and Docker release setup
+## Latest run — 2026-11-02 footer query-link removal
 
-**Status: passed for the required Chrome responsive, zoom, motion and interaction checks.** Other browser engines and physical-device performance remain unverified.
+**Status: passed for the requested footer removal with focused verification.**
 
-- Updated Next.js to 16.4.3, Zod to 4.6.7, matching Next ESLint tooling and Vitest/coverage to 5.0.5. Local Docker and CI use Node 22. No public layout, copy or animation source was changed in this task.
-- Tested the final production frontend image on the isolated `opektra-release-check` stack at `http://localhost:13001`. The existing local stack at port 13000 and its data were retained.
-- **368/368 required matrix cases:** 23 logical viewports × all 16 public routes, with full-page scrolling, titles/headings, images/alt text, horizontal clipping/overflow, footer placement, pinned-panel fit and all three workflow states. No material findings.
-- **42/42 boundary cases:** Home and Conektra at one pixel below/at/above widths 650, 767, 900, 1150, 1550 and story heights 820, 1400. No material findings.
-- Inspected fresh screenshot galleries covering every route and all screen families, including 4K/superwide/5K, plus focused Conektra hero and live-scrolled homepage content. Pinned-story reserved scroll space in a static full-page capture was assessed with focused scrolling and state checks, not treated as missing content.
-- **20/20 actual Chrome zoom cases:** Home, Conektra, Contact/footer and an article at 80%, 100%, 125%, 150%, 200%. CSS dimensions were respectively 3200×1540, 2560×1232, 2048×985, 1706×821, 1280×616. No clipping/overflow or footer gap. Short-window normal-flow fallbacks remained accessible.
-- **Reduced motion:** Chrome DevTools Rendering emulation confirmed `prefers-reduced-motion: reduce`; Home and Conektra retain accessible stage controls, the story uses normal flow, and no continuous CSS animations remained active. The override was restored to No emulation and DevTools closed.
-- Verified real scroll advances Conversation → Booking → Operations; mobile manual selection survives incidental scrolling; keyboard Tab reaches mobile links; Escape closes the menu and restores focus. Portrait-to-landscape resizing without reload passed. Industry switching, service-domain disclosure, contact topic/mailto preparation and production admin browser login passed. No email was sent.
-- Production build/TypeScript passed. Frontend: 19 unit checks passed; coverage thresholds passed (89.65% lines, 100% functions). ESLint passed with 0 errors (10 existing warnings). Backend: 54 checks passed in a disposable test database. Production image npm audit: 0 findings; complete frontend dependency tree: 0 high/critical, 16 moderate development-only findings. Fresh production bootstrap, private media-volume writes, secure cookies and authenticated API proxy checks passed.
-- Evidence: `output/responsive-qa/2026-11-02-security-release/` (`results.json`, `boundaries/`, `zoom.json`, `reduced-motion.json`, `real-scroll.json`, `interactions.json`, screenshot galleries and focused captures). Deployment evidence: `output/deployment-qa/2026-11-02-security-release/`.
-- Browser/OS: Google Chrome via extension on macOS. Matrix viewport emulation used DPR 1; native default was 2560×1232 CSS pixels at DPR 2. Native browser zoom, viewport override and reduced-motion preference were restored; the temporary QA tab was closed.
-- Limits: Safari/Firefox, physical phones/tablets, touch hardware and hardware-performance validation were unavailable. The user will deploy on the live server; its DNS, firewall, HTTPS certificate issuance/renewal, integration credentials and off-server backup/restore remain server-side checks, not claims established by this local run.
+- Removed the shared `Queries: Soumen Karmakar` mailto link, so it no longer appears in the footer on any page.
+- Refreshed localhost:13000 with a successful production build/TypeScript compilation. Lint for the changed footer file and Git whitespace checks passed. No new unit tests were added for this simple link removal.
+- Confirmed the live Blog footer contains only About Opektra, Contact and Privacy & grievances in its Company navigation; the removed query link is absent. Inspected a fresh footer screenshot and restored the viewport override.
+- An expanded matrix had reached 120/368 cases with no findings when the user said, “etto screen size er checks bar bar korte hobe na”. Stopped the expanded checks immediately. This is not a full-matrix pass; the remaining matrix, zoom and motion cases were not run for this edit.
+- Updated the workspace QA scope to preserve that preference: focused checks for small copy/link changes, full matrix only for substantial layout/styling/animation/dependency changes or an explicit request.
+- Evidence: `output/responsive-qa/2026-11-02-footer-query-removal/` contains the request image, focused-footer.json, footer-after.png and the completed matrix cases. Browser: Chrome on macOS; focused capture used its natural 2560px CSS width. Browser viewport was restored and the temporary QA tab closed. No other browser engines or physical devices were tested for this edit.

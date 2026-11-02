@@ -17,8 +17,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Mandatory responsive QA
 
-- Read and follow the root `../design-qa.md` protocol on every frontend task, including small CSS fixes.
-- Before handoff, check every public route at all required phone, tablet, laptop/MacBook-class, desktop, QHD/4K and larger logical viewports, plus the affected breakpoint boundaries and zoom checks.
+- Read the root `../design-qa.md` protocol and scale verification to the change. The user does not want the complete screen-size matrix repeatedly run for small edits; copy/link removals need a focused component/page check.
+- Use every public route and the full viewport/breakpoint/zoom matrix for substantial layout, styling, animation or dependency changes, or when explicitly requested. For small edits, check only the affected content, layout and interactions.
 - Verify the entire page and all product-story states, not just the first viewport. Inspect header, hero, panels, typography, articles, contact band and footer.
 - A pinned section must fit the available viewport height. Short/tall fallback layouts and reduced-motion mode must preserve access to all content and stage controls.
 - Record screenshots, numerical checks, fixed findings, limitations and a fresh final result in root `design-qa.md`. Do not replace this gate with build success or old screenshots.
