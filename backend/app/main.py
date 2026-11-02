@@ -121,6 +121,12 @@ def seed_database():
         elif admin.role_id is None:
             admin.role_id = roles["super_admin"].id
 
+        # Production needs the administrator and permissions, not the legacy
+        # portfolio examples used to populate a developer's empty database.
+        if settings.APP_ENV == "production":
+            db.commit()
+            return
+
         if not db.query(Product).first():
             flagship_features = [
                 {

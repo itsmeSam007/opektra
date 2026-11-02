@@ -17,7 +17,8 @@ class LoginRequest(BaseModel):
 
 class UserOut(BaseModel):
     id: int
-    email: EmailStr
+    # Responses must also support the local Docker accounts accepted at login.
+    email: str
     is_active: bool
     roles: list[str]
     permissions: list[str]

@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import model_validator
 
 
 class Settings(BaseSettings):
@@ -33,12 +34,27 @@ class Settings(BaseSettings):
     FORM_RATE_LIMIT: int = 10
     FORM_RATE_WINDOW_SECONDS: int = 3600
 
+    @model_validator(mode="after")
+    def validate_production(self):
+        if self.APP_ENV == "production":
+            if len(self.SECRET_KEY) < 32 or self.SECRET_KEY in {
+                "change-me-in-production-use-openssl-rand-hex-32",
+                "dev-secret-key-change-in-production",
+            }:
+                raise ValueError("Production requires a unique SECRET_KEY of at least 32 characters")
+            if not 16 <= len(self.ADMIN_PASSWORD.encode("utf-8")) <= 72:
+                raise ValueError("Production ADMIN_PASSWORD must contain 16 to 72 UTF-8 bytes")
+            if not self.SITE_URL.startswith("https://"):
+                raise ValueError("Production SITE_URL must use HTTPS")
+        return self
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
     class Config:
         env_file = ".env"
+        hide_input_in_errors = True
 
 
 settings = Settings()

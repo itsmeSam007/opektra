@@ -6,8 +6,8 @@ const adminPassword = process.env.E2E_ADMIN_PASSWORD || "admin123";
 test.describe("Smoke — public site", () => {
   test("home page loads", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/Soumen Karmakar/i);
-    await expect(page.getByRole("link", { name: "Products" })).toBeVisible();
+    await expect(page).toHaveTitle(/Opektra/i);
+    await expect(page.getByRole("link", { name: "Products", exact: true })).toBeVisible();
   });
 
   test("products page lists published products", async ({ page }) => {
@@ -15,13 +15,17 @@ test.describe("Smoke — public site", () => {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 
-  test("contact form submits successfully", async ({ page }) => {
+  test("contact topic prepares the business email", async ({ page }) => {
     await page.goto("/contact");
-    await page.getByTestId("contact-name").fill("E2E Tester");
-    await page.getByTestId("contact-email").fill("e2e@example.com");
-    await page.getByTestId("contact-message").fill("This is an automated E2E contact form test message.");
-    await page.getByTestId("contact-submit").click();
-    await expect(page.getByTestId("contact-success")).toBeVisible({ timeout: 15_000 });
+    await page.getByRole("button", { name: "Product enquiries", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Product enquiries", exact: true })).toHaveAttribute("aria-pressed", "true");
+    const href = await page.getByRole("link", { name: "Start the conversation" }).getAttribute("href");
+    expect(href).toBeTruthy();
+    const email = new URL(href!);
+    expect(email.protocol).toBe("mailto:");
+    expect(email.pathname).toBe("admin@opektra.com");
+    expect(email.searchParams.get("subject")).toBe("Opektra product enquiry");
+    expect(email.searchParams.get("body")).toContain("The product I’m interested in:");
   });
 });
 

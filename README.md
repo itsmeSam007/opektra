@@ -31,7 +31,7 @@ To make intelligent, accessible, and scalable technology available to businesses
 
 This repository serves as the development workspace for Opektra's digital presence and related project documentation.
 
-Technical architecture, development instructions, and deployment procedures will be documented as the project evolves.
+Local and live Docker environments: [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Development Status
 

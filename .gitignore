@@ -197,3 +197,4 @@ test-results/
 *.tsbuildinfo
 *.pem
 *.key
+/backups/

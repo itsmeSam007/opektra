@@ -1,0 +1,12 @@
+{
+	email {$TLS_EMAIL}
+}
+
+{$SITE_APEX} {
+	redir https://{$SITE_HOST}{uri} permanent
+}
+
+{$SITE_HOST} {
+	encode zstd gzip
+	reverse_proxy frontend:3000
+}

@@ -51,8 +51,11 @@ See [context.md](context.md) for build phase status and sprint workflow. See [PO
 
 ### With Docker (recommended)
 
+Local and production use separate Compose files, env files and data volumes.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for live deployment and backups.
+
 ```bash
-docker compose up --build
+./docker-local up -d --build
 ```
 
 - Frontend: http://localhost:13000

@@ -1,10 +1,13 @@
 """Authentication endpoint tests."""
 
 from unittest.mock import patch
+from datetime import datetime, timezone
+from types import SimpleNamespace
 
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.api.deps import get_current_user
 
 client = TestClient(app)
 
@@ -12,6 +15,20 @@ client = TestClient(app)
 def test_me_requires_auth():
     response = client.get("/api/v1/auth/me")
     assert response.status_code == 401
+
+
+def test_me_returns_local_docker_account():
+    user = SimpleNamespace(
+        id=1, email="admin@founderos.local", is_active=True, role=None,
+        permission_codes=lambda: set(), created_at=datetime.now(timezone.utc),
+    )
+    app.dependency_overrides[get_current_user] = lambda: user
+    try:
+        response = client.get("/api/v1/auth/me")
+        assert response.status_code == 200
+        assert response.json()["email"] == user.email
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_login_validation_short_password():

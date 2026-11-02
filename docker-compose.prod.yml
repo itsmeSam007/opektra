@@ -1,0 +1,149 @@
+# Standalone production configuration. Do NOT merge with the local file.
+name: opektra-prod
+
+x-runtime: &runtime
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  db:
+    <<: *runtime
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: opektra
+      POSTGRES_DB: opektra
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.prod}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opektra -d opektra"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  redis:
+    <<: *runtime
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks: [data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    <<: *runtime
+    build:
+      context: ./backend
+      dockerfile: ../deploy/backend.Dockerfile
+    environment:
+      APP_ENV: production
+      # Backend is reachable only on private Compose networks behind the proxy.
+      FORWARDED_ALLOW_IPS: "*"
+      DATABASE_URL: postgresql://opektra:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.prod}@db:5432/opektra
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env.prod}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL in .env.prod}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env.prod}
+      SITE_URL: https://${SITE_HOST:?Set SITE_HOST in .env.prod}
+      CORS_ORIGINS: https://${SITE_HOST:?Set SITE_HOST in .env.prod}
+      MEDIA_ROOT: /data/media
+      TENANT_ID: default
+      GITHUB_USERNAME: ${GITHUB_USERNAME:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
+      YOUTUBE_CHANNEL_ID: ${YOUTUBE_CHANNEL_ID:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      NOTIFY_EMAIL: ${NOTIFY_EMAIL:-}
+    volumes:
+      - media_data:/data/media
+    networks: [app, data]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json, urllib.request; r=json.load(urllib.request.urlopen('http://127.0.0.1:8000/api/v1/ready', timeout=4)); assert r['status'] == 'ready'"
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  frontend:
+    <<: *runtime
+    build:
+      context: ./frontend
+      dockerfile: ../deploy/frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: https://${SITE_HOST:?Set SITE_HOST in .env.prod}
+        NEXT_PUBLIC_NOINDEX: ${NEXT_PUBLIC_NOINDEX:-false}
+    environment:
+      NODE_ENV: production
+      DOCKER_BUILD: "0"
+      NEXT_PUBLIC_SITE_URL: https://${SITE_HOST:?Set SITE_HOST in .env.prod}
+      NEXT_PUBLIC_NOINDEX: ${NEXT_PUBLIC_NOINDEX:-false}
+      API_PROXY_URL: http://backend:8000
+    networks: [app]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  proxy:
+    <<: *runtime
+    image: caddy:2-alpine
+    environment:
+      SITE_HOST: ${SITE_HOST:?Set SITE_HOST in .env.prod}
+      SITE_APEX: ${SITE_APEX:?Set SITE_APEX in .env.prod}
+      TLS_EMAIL: ${TLS_EMAIL:?Set TLS_EMAIL in .env.prod}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [app]
+    depends_on:
+      frontend:
+        condition: service_healthy
+
+networks:
+  app:
+  data:
+    internal: true
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_data:
+  caddy_data:
+  caddy_config:

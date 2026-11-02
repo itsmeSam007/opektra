@@ -91,12 +91,19 @@ Also test **one pixel below/at/above each affected media-query boundary**. Curre
 
 ---
 
-## Latest run — 2026-11-02 public copy cleanup
+## Latest run — 2026-11-02 dependency security and Docker release setup
 
-**Status: partial — testing explicitly waived by the user for this copy-only task.**
+**Status: passed for the required Chrome responsive, zoom, motion and interaction checks.** Other browser engines and physical-device performance remain unverified.
 
-- Removed product-scene labels such as “Illustrative product story”, “Illustrative capability map”, “Illustrative journey” and “Conceptual workflow” across the public product components, including the shared homepage capability map.
-- Removed the voice-scene placeholder caption and photography disclaimer sentence. Rephrased similar editorial copy and image descriptions in the journal. Preserved meaningful feature/plan qualifications and the substance of the website terms.
-- No browser, responsive, unit or lint test suite, or standalone type-check command, was run, following the user's explicit request: “kono test lagbe na. just remove kore dao”. Previous-task results are not evidence for this change.
-- Refreshed the existing local frontend preview through its production build; this is required to serve updated source at localhost:13000. The standard production build includes TypeScript compilation; no separate tests were run. No public deployment or Git push was requested.
-- Source edits and the prior report are retained locally; no browser settings were changed during this task.
+- Updated Next.js to 16.4.3, Zod to 4.6.7, matching Next ESLint tooling and Vitest/coverage to 5.0.5. Local Docker and CI use Node 22. No public layout, copy or animation source was changed in this task.
+- Tested the final production frontend image on the isolated `opektra-release-check` stack at `http://localhost:13001`. The existing local stack at port 13000 and its data were retained.
+- **368/368 required matrix cases:** 23 logical viewports × all 16 public routes, with full-page scrolling, titles/headings, images/alt text, horizontal clipping/overflow, footer placement, pinned-panel fit and all three workflow states. No material findings.
+- **42/42 boundary cases:** Home and Conektra at one pixel below/at/above widths 650, 767, 900, 1150, 1550 and story heights 820, 1400. No material findings.
+- Inspected fresh screenshot galleries covering every route and all screen families, including 4K/superwide/5K, plus focused Conektra hero and live-scrolled homepage content. Pinned-story reserved scroll space in a static full-page capture was assessed with focused scrolling and state checks, not treated as missing content.
+- **20/20 actual Chrome zoom cases:** Home, Conektra, Contact/footer and an article at 80%, 100%, 125%, 150%, 200%. CSS dimensions were respectively 3200×1540, 2560×1232, 2048×985, 1706×821, 1280×616. No clipping/overflow or footer gap. Short-window normal-flow fallbacks remained accessible.
+- **Reduced motion:** Chrome DevTools Rendering emulation confirmed `prefers-reduced-motion: reduce`; Home and Conektra retain accessible stage controls, the story uses normal flow, and no continuous CSS animations remained active. The override was restored to No emulation and DevTools closed.
+- Verified real scroll advances Conversation → Booking → Operations; mobile manual selection survives incidental scrolling; keyboard Tab reaches mobile links; Escape closes the menu and restores focus. Portrait-to-landscape resizing without reload passed. Industry switching, service-domain disclosure, contact topic/mailto preparation and production admin browser login passed. No email was sent.
+- Production build/TypeScript passed. Frontend: 19 unit checks passed; coverage thresholds passed (89.65% lines, 100% functions). ESLint passed with 0 errors (10 existing warnings). Backend: 54 checks passed in a disposable test database. Production image npm audit: 0 findings; complete frontend dependency tree: 0 high/critical, 16 moderate development-only findings. Fresh production bootstrap, private media-volume writes, secure cookies and authenticated API proxy checks passed.
+- Evidence: `output/responsive-qa/2026-11-02-security-release/` (`results.json`, `boundaries/`, `zoom.json`, `reduced-motion.json`, `real-scroll.json`, `interactions.json`, screenshot galleries and focused captures). Deployment evidence: `output/deployment-qa/2026-11-02-security-release/`.
+- Browser/OS: Google Chrome via extension on macOS. Matrix viewport emulation used DPR 1; native default was 2560×1232 CSS pixels at DPR 2. Native browser zoom, viewport override and reduced-motion preference were restored; the temporary QA tab was closed.
+- Limits: Safari/Firefox, physical phones/tablets, touch hardware and hardware-performance validation were unavailable. The user will deploy on the live server; its DNS, firewall, HTTPS certificate issuance/renewal, integration credentials and off-server backup/restore remain server-side checks, not claims established by this local run.
