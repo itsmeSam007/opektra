@@ -27,8 +27,8 @@ export default function TermsPage() {
       <p>
         This website describes our capabilities, approach and products. Articles
         provide general information rather than advice for your particular
-        circumstances. Product scenes and sample workflows are illustrative;
-        they are not live customer records or promises of a particular feature,
+        circumstances. Product overviews explain workflows;
+        they do not display live customer records or guarantee a particular feature,
         release date, business result or service level. Check the relevant
         product website and an agreed specification for current availability.
       </p>
