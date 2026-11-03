@@ -93,13 +93,16 @@ Apply these checks during a full run or when the changed behaviour makes them re
 
 ---
 
-## Latest run — 2026-11-02 footer query-link removal
+## Latest run — 2026-11-03 About page CEO Vision
 
-**Status: passed for the requested footer removal with focused verification.**
+**Status: passed for focused About page layout/build checks; native preference emulation remains unverified.**
 
-- Removed the shared `Queries: Soumen Karmakar` mailto link, so it no longer appears in the footer on any page.
-- Refreshed localhost:13000 with a successful production build/TypeScript compilation. Lint for the changed footer file and Git whitespace checks passed. No new unit tests were added for this simple link removal.
-- Confirmed the live Blog footer contains only About Opektra, Contact and Privacy & grievances in its Company navigation; the removed query link is absent. Inspected a fresh footer screenshot and restored the viewport override.
-- An expanded matrix had reached 120/368 cases with no findings when the user said, “etto screen size er checks bar bar korte hobe na”. Stopped the expanded checks immediately. This is not a full-matrix pass; the remaining matrix, zoom and motion cases were not run for this edit.
-- Updated the workspace QA scope to preserve that preference: focused checks for small copy/link changes, full matrix only for substantial layout/styling/animation/dependency changes or an explicit request.
-- Evidence: `output/responsive-qa/2026-11-02-footer-query-removal/` contains the request image, focused-footer.json, footer-after.png and the completed matrix cases. Browser: Chrome on macOS; focused capture used its natural 2560px CSS width. Browser viewport was restored and the temporary QA tab closed. No other browser engines or physical devices were tested for this edit.
+- Implemented the approved CEO Vision section after the company introduction and before engineering principles. Added the approved statement, Soumen Karmakar attribution and Founder & CEO designation.
+- Used the supplied original portrait, unchanged, in a rounded 4:5 frame with a CSS crop. Desktop places the photo beside the statement; mobile/tablet stack the portrait above the copy. Image optimization, responsive sizes, lazy loading and descriptive alt text are provided through Next Image.
+- Kept styling scoped to the new section. Subtle paragraph/portrait reveals reuse the existing shared Reveal component, including its reduced-motion branch; there is no new continuous animation or scroll pinning.
+- Focused on `/about`, following the user's request not to repeat the complete site-wide matrix. Checked 1440×900, 1280×720, 390×844, 320×568, 844×390, 820×1180 and the 899/900/901px stacking boundary at 900px height. All nine cases loaded the portrait and all three paragraphs without horizontal overflow, clipped copy or a footer gap.
+- Inspected fresh desktop and mobile screenshots for face crop, name/designation, readable copy, spacing and image/text order. Scrolled the complete About page, including the sections following the new content. Browser console errors: 0.
+- Production build and TypeScript compilation passed. ESLint for the changed About page and CEO component passed. Git whitespace checks passed. No new unit tests were added for presentational content.
+- Evidence: `output/responsive-qa/2026-11-03-ceo-vision/` includes `desktop.png`, `mobile.png`, `checks.json`, `console-errors.json`, `restored.json` and this run's previous report.
+- Chrome on macOS; focused viewport emulation used DPR 1. Restored natural viewport: 2504×1232 CSS pixels, DPR 2. Temporary viewport overrides were reset; the About preview was left open for review.
+- Limits: full-site matrix, other browser engines, physical devices and native zoom checks were not run for this localized section. Native control was interrupted while attempting preference emulation, so no reduced-motion preference pass is claimed. No motion preference override was applied and no DevTools panel was left open.
